@@ -8,9 +8,9 @@ namespace Application.UseCases.Transactions.Queries.GetTransaction;
 public class GetTransactionQuery : GetTransactionQueryModel, IRequest<Result<GetTransactionQueryDto>>
 {
     public class GetTransaccionQueryHandler(
-        IRepository<Transaction> transaccionRepository) : UseCaseHandler, IRequestHandler<GetTransactionQuery, Result<GetTransactionQueryDto>>
+        IRepository<Transaction> transaccionRepository,
+        IExternalService<FileEntity> externalService) : UseCaseHandler, IRequestHandler<GetTransactionQuery, Result<GetTransactionQueryDto>>
     {
-        [Obsolete]
         public async Task<Result<GetTransactionQueryDto>> Handle(GetTransactionQuery request, CancellationToken cancellationToken)
         {
             var transaction = await transaccionRepository.GetByIdAsync(request.Id) ?? throw (new ArgumentException("The transaction id does not exist"));

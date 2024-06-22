@@ -8,13 +8,15 @@ namespace Application.UseCases.Transactions.Queries.GetTransactions;
 public class GetTransactionsQuery : IRequest<Result<GetTransactionsQueryDto>>
 {
     public class GetTransactionsQueryHandler(
-        IRepository<Transaction> transaccionRepository) : UseCaseHandler, IRequestHandler<GetTransactionsQuery, Result<GetTransactionsQueryDto>>
+        IRepository<Transaction> transaccionRepository,
+        IExternalService<Domain.Entities.Transactions> externalService,
+        IExternalService<FilesName> externalServiceString) : UseCaseHandler, IRequestHandler<GetTransactionsQuery, Result<GetTransactionsQueryDto>>
     {
         public async Task<Result<GetTransactionsQueryDto>> Handle(GetTransactionsQuery request, CancellationToken cancellationToken)
         {
-            var transactions = await transaccionRepository.GetAllAsync();
+            var response = await transaccionRepository.GetAllAsync();
 
-            var transactionsDto = transactions
+            var transactionsDto = response
                     .Select(x => new GetTransactionsQueryValueDto()
                     {
                         Id = x.Id,
@@ -22,6 +24,29 @@ public class GetTransactionsQuery : IRequest<Result<GetTransactionsQueryDto>>
                         Status = x.Status,
                         Date = x.Date
                     });
+
+            var names = await externalServiceString.GetList();
+
+            var transactions = new Domain.Entities.Transactions()
+            {
+                transactions = new List<FileEntity>()
+                {
+                    new ()
+                    {
+                        Id = Guid.NewGuid(),
+                        FileName = "Microservice Test 1",
+                        TransactionName = "Microservice Transaction 1"
+                    },
+                    new ()
+                    {
+                        Id = Guid.NewGuid(),
+                        FileName = "Microservice Test 11",
+                        TransactionName = "Microservice Transaction 11"
+                    },
+                }
+            };
+
+            var isSucces = await externalService.Create(transactions);
 
             var resultData = new GetTransactionsQueryDto()
             {
