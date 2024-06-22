@@ -1,0 +1,2 @@
+# LiteThinking
+HexagonalArchitecture
